@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+# Generated media is published to the demos prerelease.
+docs/table.gif
+docs/table.mp4
+docs/table.png
