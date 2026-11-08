@@ -93,11 +93,10 @@ return function(opts)
 		for syllable in pairs(pinyin_parts.initial) do
 			syllables[syllable] = convert({ syllable }) or {}
 		end
-		return { data = data, groups = syllables, matcher = "initial", scope = "chinese" }
+		return { data = data, groups = syllables, matcher = "initial" }
 	end
 	return {
 		data = tables.load("pinyin", { convert = convert }),
 		matcher = "full_code",
-		scope = "chinese",
 	}
 end

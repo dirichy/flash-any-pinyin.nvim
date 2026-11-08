@@ -107,8 +107,8 @@ by the chosen scheme are used; special syllables such as zero-initial syllables 
 the scheme's own encodings. Many combinations increase build and matching work and
 can especially enlarge double-pinyin dictionaries.
 
-See [all options](docs/options.en.md) for scope, fallback, short-code padding,
-dictionary overrides, spelling groups and combination constraints.
+See [configuration examples](docs/options.en.md) for matching modes and using
+multiple pinyin configurations together.
 
 ## More
 
