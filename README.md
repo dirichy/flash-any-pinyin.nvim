@@ -35,14 +35,77 @@
 
 输入 `zhong` 找“中”，输入 `zhongwen with flash` 找“中文 with flash”。搜索 ASCII 时直接输入原文。
 
-首字母也可匹配：`zw` 找“中文”。若要启用双拼和模糊音，将上面的 `opts` 换成：
+## 配置
+
+需要配置时，将安装示例中的 `opts` 换成下面的形式：
 
 ```lua
-opts = { sources = { { name = "pinyin", scheme = "flypy", fuzzy = true } } }
+opts = {
+  sources = {
+    { name = "pinyin", scheme = "flypy", fuzzy = true },
+  },
+}
 ```
 
-scheme 支持 flypy、pyjj、natural、abc、mspy、st；省略时使用全拼与首字母。
-省略 fuzzy 即关闭模糊音。模糊音组合过多可能增加构建时间和码表体积，尤其是双拼。
+| 选项 | 默认值 | 用途 |
+| --- | --- | --- |
+| `scheme` | 不设置 | 不设置为全拼与首字母；设置字符串选择下表中的双拼 |
+| `fuzzy` | 关闭（不设置或 `false`） | `true` 启用默认分组，表则自定义分组 |
+| `matcher` | 全拼 `initial`，双拼 `full_code` | 也可显式设为 `full_code`、`initial`、`prefix` |
+
+### 支持的双拼
+
+| scheme | 方案 |
+| --- | --- |
+| `flypy` | 小鹤双拼 |
+| `pyjj` | 拼音加加 |
+| `natural` | 自然码 |
+| `abc` | 智能 ABC |
+| `mspy` | 微软双拼 |
+| `st` | 四通双拼 |
+
+例如 `{ name = "pinyin", scheme = "flypy" }` 只启用小鹤双拼，不开启模糊音。
+省略 scheme 使用全拼与首字母，`zw` 可以匹配“中文”。要同时支持全拼和双拼，
+可在 sources 中分别加入 `"pinyin"` 和 `{ name = "pinyin", scheme = "flypy" }`。
+
+### 默认模糊音
+
+`fuzzy = true` 等价于下面的配置。全拼和双拼都支持模糊音：
+
+```lua
+{
+  name = "pinyin",
+  fuzzy = {
+    initials = { { "zh", "z" }, { "ch", "c" }, { "sh", "s" } },
+    finals = { { "ang", "an" }, { "eng", "en" }, { "ing", "in" } },
+  },
+}
+```
+
+### 手动设置模糊音
+
+例如只启用 zh/z、n/l 和 ang/an：
+
+```lua
+{
+  name = "pinyin",
+  fuzzy = {
+    initials = { { "zh", "z" }, { "n", "l" } },
+    finals = { { "ang", "an" } },
+  },
+}
+```
+
+同一组内互相替代。自定义表**整体替换**默认分组，不会自动合并；未列出的声母或
+韵母不模糊，省略 initials 或 finals 即关闭该类模糊。`fuzzy = {}` 也不启用模糊音。
+同一项出现在多个组时，使用第一个组，不做传递合并。
+
+设置 `scheme = "flypy"` 可将上例用于双拼；双拼只使用该方案能编码的变体，
+零声母等特殊音节按方案自己的编码处理。模糊音组合过多会增加构建和匹配开销，
+尤其可能增大双拼码表。
+
+其他选项（scope、fallback、短码补空格、自定义码表与编码组）以及组合限制，
+见[完整选项](docs/options.md)。
 
 ## 更多
 
