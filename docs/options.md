@@ -45,6 +45,11 @@ opts = {
 这里只启用 n/l，不会补上默认的 zh/z 等分组，也不启用韵母模糊。
 将 fuzzy 设为 true 才使用默认六组，设为 false 关闭；也可与 scheme 一起配置。
 
+`initials`、`finals` 作用于全拼声母、韵母，在双拼转换前展开；`codes` 作用于
+转换后的完整编码，例如 `fuzzy = { codes = { { "eg", "en" } } }`。双拼方案中
+直接指定编码的零声母等特殊音节不受 `initials`、`finals` 影响，应通过 `codes`
+设置模糊。三类规则可同时配置，详见 [README 模糊音说明](../README.md#手动设置模糊音)。
+
 ## 选择匹配方式
 
 ```lua

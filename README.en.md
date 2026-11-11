@@ -102,11 +102,35 @@ groups; it does not merge with them. Unlisted components stay unchanged. Omit
 initials or finals to disable that category; `fuzzy = {}` enables no fuzzy groups.
 If a component occurs in several groups, the first wins, without transitive merging.
 
-Add `scheme = "flypy"` to use these rules with double pinyin. Only variants mapped
-by the chosen scheme are used; special syllables such as zero-initial syllables use
-the scheme's own encodings. Many combinations increase build and matching work and
+`initials` and `finals` apply to **full-pinyin initials and finals**, not double-pinyin
+keystrokes. Add `scheme = "flypy"` to expand those components first, then convert the
+variants to double pinyin, keeping only those supported by the scheme. Special
+syllables with directly assigned codes, such as zero-initial exceptions, bypass
+component expansion: `initials` and `finals` do not affect them. Use `codes` instead.
+Many combinations increase build and matching work and
 increase the shared spelling groups. Both full and double pinyin share spellings
 per syllable instead of expanding them for every character.
+
+Use `codes` to define fuzzy groups for complete final codes. For example, make
+Flypy's `eg` and `en` interchangeable:
+
+```lua
+{
+  name = "pinyin",
+  scheme = "flypy",
+  fuzzy = {
+    codes = { { "eg", "en" } },
+  },
+}
+```
+
+The order is initial/final fuzzing → double-pinyin conversion (if configured) →
+whole-code fuzzing. `codes` applies to **the final codes after conversion**, including
+directly assigned special codes. These codes need not correspond to standard pinyin syllables and
+also works with full pinyin. It matches complete codes, without substring replacement
+or recursive expansion. Combine it with `initials` and `finals` as needed; specifying
+only `codes` does not enable the default initial/final groups. Whole-code groups
+follow the same first-group-wins rule described above.
 
 See [configuration examples](docs/options.en.md) for matching modes and using
 multiple pinyin configurations together.

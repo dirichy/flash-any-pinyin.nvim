@@ -31,7 +31,7 @@ end
 
 ---全拼和双拼均按音节共享拼写；逐字码表由核心读取。
 ---opts.scheme 省略时使用全拼，字表只保存标准读音。
----@param opts? table scheme 选择双拼方案，fuzzy 控制声母、韵母的模糊音分组。
+---@param opts? table scheme 选择双拼方案，fuzzy 控制声母、韵母及最终编码的模糊分组。
 ---@return FlashAnySourceDefinition
 return function(opts)
 	local scheme = opts and opts.scheme
@@ -48,6 +48,10 @@ return function(opts)
 	-- 分组只读；每次构建创建声母、韵母的反向索引。
 	local initial_index = fuzzy_index(groups and groups.initials, pinyin_parts.initial)
 	local final_index = fuzzy_index(groups and groups.finals, pinyin_parts.final)
+	local code_index = groups and groups.codes ~= nil and fuzzy_index(groups.codes, {})
+	for code in pairs(code_index or {}) do
+		assert(#code > 0, "fuzzy codes must not be empty")
+	end
 	---把一个字符的读音转为双拼编码；标点原样保留。
 	---@param syllables? string[]
 	---@return string[]? 无可用编码时返回 nil。
@@ -83,6 +87,18 @@ return function(opts)
 					end
 				end
 			end
+		end
+		if code_index then
+			-- 整码分组作用于最终拼写，仅展开一次，不递归替换或匹配子串。
+			local spellings, seen = {}, {}
+			for _, code in ipairs(ret) do
+				for _, variant in ipairs(code_index[code] or { code }) do
+					if not seen[variant] then
+						spellings[#spellings + 1], seen[variant] = variant, true
+					end
+				end
+			end
+			ret = spellings
 		end
 		return #ret > 0 and ret or nil
 	end

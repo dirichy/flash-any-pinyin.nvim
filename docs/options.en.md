@@ -47,6 +47,13 @@ Only n/l is enabled. Default rules such as zh/z are not added, and no final-comp
 rules are enabled. Set fuzzy=true for the six defaults, or false to disable them.
 Fuzzy settings can also be combined with scheme.
 
+`initials` and `finals` expand full-pinyin components before double-pinyin conversion;
+`codes` applies to complete codes after conversion, for example
+`fuzzy = { codes = { { "eg", "en" } } }`. Special syllables with directly assigned
+double-pinyin codes, such as zero-initial exceptions, are unaffected by `initials`
+and `finals`; use `codes` for them. All three categories can be combined. See the
+[README fuzzy settings](../README.en.md#custom-fuzzy-groups).
+
 ## Choose matching behavior
 
 ```lua
