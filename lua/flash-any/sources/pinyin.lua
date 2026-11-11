@@ -1,4 +1,3 @@
-local tables = require("flash-any.table")
 local pinyin_parts = require("flash-any.pinyin.parts")
 
 local default_fuzzy = {
@@ -30,7 +29,7 @@ local function fuzzy_index(groups, parts)
 	return ret
 end
 
----全拼按音节共享模糊拼写；双拼先展开模糊音，再转换键位。
+---全拼和双拼均按音节共享拼写；逐字码表由核心读取。
 ---opts.scheme 省略时使用全拼，字表只保存标准读音。
 ---@param opts? table scheme 选择双拼方案，fuzzy 控制声母、韵母的模糊音分组。
 ---@return FlashAnySourceDefinition
@@ -87,16 +86,15 @@ return function(opts)
 		end
 		return #ret > 0 and ret or nil
 	end
-	if not scheme then
-		local data = tables.load("pinyin")
-		local syllables = {}
-		for syllable in pairs(pinyin_parts.initial) do
-			syllables[syllable] = convert({ syllable }) or {}
-		end
-		return { data = data, groups = syllables, matcher = "initial" }
+	local syllables = {}
+	for syllable in pairs(pinyin_parts.initial) do
+		syllables[syllable] = convert({ syllable }) or {}
 	end
 	return {
-		data = tables.load("pinyin", { convert = convert }),
-		matcher = "full_code",
+		file = assert(vim.api.nvim_get_runtime_file("lua/flash-any/tables/pinyin.tsv", false)[1]),
+		format = "tsv",
+		columns = { "text", "code" },
+		groups = syllables,
+		matcher = scheme and "full_code" or "initial",
 	}
 end

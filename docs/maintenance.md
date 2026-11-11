@@ -11,7 +11,7 @@ For installation and usage, see the READMEs linked above.
 | lua/flash-any/tables/pinyin.tsv | 完整字符读音及标点 / Complete character readings and punctuation |
 | lua/flash-any/pinyin/parts.lua | 音节的声母、韵母 / Initial and final components of syllables |
 | lua/flash-any/pinyin/schemes.lua | 双拼键位 / Double-pinyin key mappings |
-| scripts/build.py | 从 pinyin-data 生成 TSV / Generate the TSV from pinyin-data |
+| scripts/build.py | 从雾凇生成 TSV 与音节表 / Generate TSV and syllables from Rime Ice |
 
 源码只提供构建期数据与转换；运行时由核心 C 匹配。不要另加常用字缓存。
 The package provides build-time data and conversion; matching stays in the C core.
@@ -20,19 +20,17 @@ There is no separate common-character cache.
 ## 更新数据 / Updating data
 
 ```sh
-python scripts/build.py pinyin-data.txt lua/flash-any/tables/pinyin.tsv
+python scripts/build.py /path/rime-ice/cn_dicts/8105.dict.yaml /path/rime-ice/cn_dicts/41448.dict.yaml
 ```
 
-输入文件来自 [mozillazg/pinyin-data](https://github.com/mozillazg/pinyin-data)。
-生成器去除声调、将 ü 规范为 v，并在同一 TSV 中写入标点；每行一个字素与一个编码。
-Python 只用于维护，不是用户安装依赖。来源和许可记录在 [THIRD_PARTY.md](../THIRD_PARTY.md)。
-若引入新的音节，也要检查 parts.lua 是否覆盖对应声母、韵母；上述命令仅更新 TSV。
+输入文件来自雾凇的固定提交，版本、许可和 SHA256 见 [THIRD_PARTY.md](../THIRD_PARTY.md)。
+生成器合并启用的单字读音、去重、移除权重并加入标点，同时更新 parts.lua。
+不合并词组，不恢复上游注释掉的读音。Python 只用于维护，不是安装依赖。
 
-The input comes from pinyin-data. The generator removes tones, normalizes ü to v,
-and includes punctuation in the same TSV, with one text/code pair per row.
-Python is a maintainer dependency only. Keep provenance and upstream terms in
-THIRD_PARTY.md. New syllables also need component coverage in parts.lua; this
-command updates only the TSV.
+Inputs are pinned Rime Ice character dictionaries; see THIRD_PARTY.md for commit,
+license and hashes. The generator merges enabled readings, removes duplicate pairs
+and weights, adds punctuation and regenerates parts.lua. It imports no phrases or
+commented readings. Python is required only for maintenance, not installation.
 
 ## 验证 / Validation
 
@@ -70,3 +68,15 @@ and downloads are compared against the verified artifacts.
 本地录制依赖和字体、画面检查见[录制说明](https://github.com/dirichy/flash-any.nvim/blob/main/demos/README.md)。
 Pin both core references in the workflow to the same tested commit. See the recording
 guide above for local dependencies, font coverage and visual inspection.
+
+## 音节组 / Syllable groups
+
+工厂只声明完整 TSV 路径并生成音节到拼写的 groups，不读取逐字码表。全拼与所有
+双拼方案使用同一份标准读音表；核心在构建时读表，并将读音编译为共享组引用。
+模糊音和双拼转换每音节只计算一次，标点编码不转换。
+
+The factory declares the complete TSV path and generates syllable spelling groups,
+without loading character data. Full pinyin and all double-pinyin schemes use the
+same standard-reading table. The core reads it during binary compilation and writes
+shared group references. Fuzzy/scheme conversion runs once per syllable; punctuation
+codes remain unchanged.

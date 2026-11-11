@@ -105,10 +105,15 @@ If a component occurs in several groups, the first wins, without transitive merg
 Add `scheme = "flypy"` to use these rules with double pinyin. Only variants mapped
 by the chosen scheme are used; special syllables such as zero-initial syllables use
 the scheme's own encodings. Many combinations increase build and matching work and
-can especially enlarge double-pinyin dictionaries.
+increase the shared spelling groups. Both full and double pinyin share spellings
+per syllable instead of expanding them for every character.
 
 See [configuration examples](docs/options.en.md) for matching modes and using
 multiple pinyin configurations together.
+
+The table merges Rime Ice’s `8105` and `41448` character dictionaries, covering
+40,596 Han characters; 
+GPL-3.0 license are documented in [THIRD_PARTY.md](THIRD_PARTY.md).
 
 ## More
 
